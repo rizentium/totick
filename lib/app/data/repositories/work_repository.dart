@@ -15,8 +15,8 @@ class WorkRepository {
     return await _workService.createOrReplace(entity);
   }
 
-  Future<List<WorkEntity>> read() async {
-    return await _workService.read();
+  Future<List<WorkEntity>> read({int? id}) async {
+    return await _workService.read(id: id);
   }
 
   Future<bool> delete(int id) async {

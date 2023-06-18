@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:totick/app/presentation/work/route/work_route.dart';
 
 import '../../../../config/environment.dart';
 import '../../../../core/extensions/build_context.dart';
@@ -108,6 +109,9 @@ class _HomeScreenState extends State<HomeScreen> {
         return HomeWorkSection(
           works: state.workState.works,
           onCreatePressed: _onCreatePressed,
+          onWorkTilePressed: (id) {
+            context.push(WorkRoute.workDetail, extra: {'id': id});
+          },
         );
       },
     );

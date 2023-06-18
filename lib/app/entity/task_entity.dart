@@ -11,7 +11,7 @@ class TaskEntity extends Equatable {
   final String? name;
   final String? description;
   final int? progress; // max is 100
-  final bool? alert;
+  final DateTime? reminder;
   final DateTime? startDate;
   final DateTime? dueDate;
   final DateTime? createdAt;
@@ -23,7 +23,7 @@ class TaskEntity extends Equatable {
     this.name,
     this.description,
     this.progress,
-    this.alert,
+    this.reminder,
     this.startDate,
     this.dueDate,
     this.createdAt,
@@ -38,7 +38,7 @@ class TaskEntity extends Equatable {
         name,
         description,
         progress,
-        alert,
+        reminder,
         startDate,
         dueDate,
         createdAt,
@@ -51,7 +51,7 @@ class TaskEntity extends Equatable {
     String? name,
     String? description,
     int? progress,
-    bool? alert,
+    DateTime? reminder,
     DateTime? startDate,
     DateTime? dueDate,
     DateTime? createdAt,
@@ -63,7 +63,7 @@ class TaskEntity extends Equatable {
       name: name ?? this.name,
       description: description ?? this.description,
       progress: progress ?? this.progress,
-      alert: alert ?? this.alert,
+      reminder: reminder ?? this.reminder,
       startDate: startDate ?? this.startDate,
       dueDate: dueDate ?? this.dueDate,
       createdAt: createdAt ?? this.createdAt,
@@ -76,4 +76,8 @@ class TaskEntity extends Equatable {
       _$TaskEntityFromJson(json);
 
   Map<String, dynamic> toJson() => _$TaskEntityToJson(this);
+
+  bool get hasDone {
+    return progress == 100;
+  }
 }

@@ -13,7 +13,10 @@ class WorkService {
     );
   }
 
-  Future<List<WorkEntity>> read() async {
+  Future<List<WorkEntity>> read({int? id}) async {
+    if (id != null) {
+      return _isar.workEntitys.filter().idEqualTo(id).findAll();
+    }
     return await _isar.workEntitys.where().findAll();
   }
 

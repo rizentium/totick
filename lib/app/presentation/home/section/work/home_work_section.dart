@@ -4,11 +4,13 @@ import '../../../../entity/work_entity.dart';
 
 class HomeWorkSection extends StatelessWidget {
   final void Function()? onCreatePressed;
+  final void Function(int id)? onWorkTilePressed;
   final List<WorkEntity> works;
 
   const HomeWorkSection({
     super.key,
     this.onCreatePressed,
+    this.onWorkTilePressed,
     this.works = const [],
   });
 
@@ -68,7 +70,7 @@ class HomeWorkSection extends StatelessWidget {
                       onPressed: () {},
                       icon: const Icon(Icons.more_vert),
                     ),
-                    onTap: () {},
+                    onTap: () => onWorkTilePressed?.call(e.id),
                   ))
               .toList(),
         ),
