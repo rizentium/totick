@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:totick/app/presentation/work/cubit/work_detail_cubit.dart';
 import 'package:totick/app/presentation/work/cubit/work_detail_state.dart';
 import 'package:totick/app/presentation/work/widget/task_tile.dart';
+import 'package:totick/core/extensions/build_context.dart';
 
 import '../../../entity/task_entity.dart';
 import '../section/create_task/create_task_section.dart';
@@ -39,11 +40,19 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
             title: Text(state.work?.name ?? ''),
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.showSnackBar(
+                    'Ops, edit feature is not implemented yet',
+                  );
+                },
                 icon: const Icon(Icons.edit),
               ),
               IconButton(
-                onPressed: () {},
+                onPressed: () {
+                  context.showSnackBar(
+                    'Ops, delete feature is not implemented yet',
+                  );
+                },
                 icon: const Icon(Icons.delete),
               ),
             ],

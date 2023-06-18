@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:totick/app/entity/task_entity.dart';
+import 'package:totick/core/extensions/build_context.dart';
 
 class TaskTile extends StatelessWidget {
   final TaskEntity task;
@@ -35,7 +36,9 @@ class TaskTile extends StatelessWidget {
             )
           : null,
       trailing: IconButton(
-        onPressed: () {},
+        onPressed: () {
+          context.showSnackBar('Ops, reminder feature is not implemented yet');
+        },
         icon: Icon(
           task.reminder != null
               ? Icons.notifications_active
@@ -43,7 +46,9 @@ class TaskTile extends StatelessWidget {
           color: Theme.of(context).colorScheme.primary.withOpacity(0.75),
         ),
       ),
-      onTap: () {},
+      onTap: () {
+        context.showSnackBar('Ops, task detail feature is not implemented yet');
+      },
     );
   }
 }
