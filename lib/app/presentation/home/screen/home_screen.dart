@@ -4,6 +4,7 @@ import '../../../../config/environment.dart';
 import '../section/task/home_task_section.dart';
 import '../section/user/home_user_section.dart';
 import '../section/work/home_work_section.dart';
+import '../section/work_create/home_work_create_section.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: _buildBody(),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => _showCreateWorkDialog(),
         tooltip: 'Create',
         child: const Icon(Icons.add),
       ),
@@ -60,6 +61,17 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: items,
+      ),
+    );
+  }
+
+  _showCreateWorkDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => const SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: HomeWorkCreateSection(),
       ),
     );
   }
