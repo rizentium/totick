@@ -5,12 +5,17 @@ import '../../../../entity/work_entity.dart';
 class HomeWorkSection extends StatelessWidget {
   final void Function()? onCreatePressed;
   final void Function(int id)? onWorkTilePressed;
+  final void Function(WorkEntity work)? onWorkDeletePressed;
+  final void Function(int id)? onWorkEditPressed;
+
   final List<WorkEntity> works;
 
   const HomeWorkSection({
     super.key,
     this.onCreatePressed,
     this.onWorkTilePressed,
+    this.onWorkDeletePressed,
+    this.onWorkEditPressed,
     this.works = const [],
   });
 
@@ -21,8 +26,10 @@ class HomeWorkSection extends StatelessWidget {
   }
 
   Widget _buildNoWork(BuildContext context) {
-    return Center(
+    return SizedBox(
+      height: MediaQuery.of(context).size.height * 0.75,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.work_off,
@@ -66,9 +73,27 @@ class HomeWorkSection extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     subtitle: const Text('20 Feb, 2021'),
-                    trailing: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_vert),
+                    trailing: PopupMenuButton(
+                      itemBuilder: (context) {
+                        return [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: const Text('Edit'),
+                            onTap: () => Future.delayed(
+                              const Duration(seconds: 0),
+                              () => onWorkEditPressed?.call(e.id),
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: const Text('Delete'),
+                            onTap: () => Future.delayed(
+                              const Duration(seconds: 0),
+                              () => onWorkDeletePressed?.call(e),
+                            ),
+                          ),
+                        ];
+                      },
                     ),
                     onTap: () => onWorkTilePressed?.call(e.id),
                   ))

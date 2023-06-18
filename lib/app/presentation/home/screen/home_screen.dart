@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:totick/app/presentation/work/route/work_route.dart';
 
 import '../../../../config/environment.dart';
 import '../../../../core/extensions/build_context.dart';
+import '../../../entity/work_entity.dart';
+import '../../work/route/work_route.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
 import '../section/task/home_task_section.dart';
@@ -28,6 +29,7 @@ class HomeScreen extends StatefulWidget {
       create: (context) => HomeCubit(
         createWorkUseCase: locator(),
         getWorksUseCase: locator(),
+        deleteWorkUseCase: locator(),
       ),
       child: HomeScreen(title: title ?? Environment.name),
     );
@@ -112,6 +114,23 @@ class _HomeScreenState extends State<HomeScreen> {
           onWorkTilePressed: (id) {
             context.push(WorkRoute.workDetail, extra: {'id': id});
           },
+          onWorkEditPressed: (id) {
+            context.showSnackBar('Ops, this feature is not available yet');
+          },
+          onWorkDeletePressed: (work) => _onDeleteWorkPressed(
+            work,
+            onDeletePressed: () {
+              context.read<HomeCubit>().deleteWork(work.id).then((value) {
+                if (state.error == null) {
+                  context.pop();
+                  return context.showSnackBar(
+                    'Success to delete work',
+                  );
+                }
+                context.showSnackBar(state.error ?? 'Failed to delete work');
+              });
+            },
+          ),
         );
       },
     );
@@ -141,6 +160,33 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           context.showSnackBar(state.error ?? 'Failed to create work');
         });
+      },
+    );
+  }
+
+  Future<void> _onDeleteWorkPressed(
+    WorkEntity work, {
+    void Function()? onDeletePressed,
+  }) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete ${work.name}'),
+          content: const Text(
+            'Are you sure to delete this work?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: onDeletePressed,
+              child: const Text('Delete'),
+            ),
+          ],
+        );
       },
     );
   }
