@@ -9,15 +9,20 @@ part 'work_entity.g.dart';
 @Collection(inheritance: false)
 class WorkEntity extends Equatable {
   final Id id;
+
+  @Index(type: IndexType.value)
   final String? name;
+
+  @Index(type: IndexType.value)
   final String? description;
+
   final List<TaskEntity>? tasks;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
 
   const WorkEntity({
-    required this.id,
+    this.id = Isar.autoIncrement,
     this.name,
     this.description,
     this.tasks,
