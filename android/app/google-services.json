@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1088643583587",
+    "project_id": "totick",
+    "storage_bucket": "totick.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088643583587:android:a2bad6b00489e8aea1b256",
+        "android_client_info": {
+          "package_name": "com.rizentium.totick"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088643583587-t9msreop455sdfgnhk8cpuns54h4b9ic.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rizentium.totick",
+            "certificate_hash": "ead6c7de5786b5fdfd2d03d354f990e28117c366"
+          }
+        },
+        {
+          "client_id": "1088643583587-4rhc1oolvj9fbhn4is5g32trlh0r30cf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZNFsZF8P4WT21HxZDL-xHmH39kSxXlJk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088643583587-4rhc1oolvj9fbhn4is5g32trlh0r30cf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
