@@ -4,50 +4,42 @@ import 'package:totick/core/extensions/build_context.dart';
 
 import '../../../../../core/design/widget/totick_textfield.dart';
 
-class HomeWorkCreateSection extends StatefulWidget {
-  final void Function(String title, String description)? onCreatePressed;
+class CreateTaskSection extends StatefulWidget {
+  final void Function(String title)? onCreatePressed;
 
-  const HomeWorkCreateSection({super.key, this.onCreatePressed});
+  const CreateTaskSection({super.key, this.onCreatePressed});
 
   static final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
-  State<HomeWorkCreateSection> createState() => _HomeWorkCreateSectionState();
+  State<CreateTaskSection> createState() => _CreateTaskSectionState();
 }
 
-class _HomeWorkCreateSectionState extends State<HomeWorkCreateSection> {
+class _CreateTaskSectionState extends State<CreateTaskSection> {
   final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Form(
-        key: HomeWorkCreateSection._formKey,
+        key: CreateTaskSection._formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Create Work',
+              'Create Task',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
             ToTickTextField.filled(
               context,
-              labelText: 'Work Name',
+              labelText: 'Task name',
               controller: _titleController,
               validator: (value) {
-                if (value?.isEmpty == true) return 'Please enter work name';
+                if (value?.isEmpty == true) return 'Please enter task name';
                 return null;
               },
-            ),
-            const SizedBox(height: 16),
-            ToTickTextField.filled(
-              context,
-              labelText: 'Description (Optional)',
-              maxLines: 3,
-              controller: _descriptionController,
             ),
             const SizedBox(height: 16),
             ButtonBar(
@@ -68,12 +60,9 @@ class _HomeWorkCreateSectionState extends State<HomeWorkCreateSection> {
     );
   }
 
-  _onCreatePressed() {
-    if (HomeWorkCreateSection._formKey.currentState?.validate() == true) {
-      widget.onCreatePressed?.call(
-        _titleController.text,
-        _descriptionController.text,
-      );
+  void _onCreatePressed() {
+    if (CreateTaskSection._formKey.currentState?.validate() == true) {
+      widget.onCreatePressed?.call(_titleController.text);
     } else {
       context.showSnackBar('Ops, please check your input');
     }

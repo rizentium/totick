@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:go_router/go_router.dart';
 import 'package:totick/app/presentation/work/cubit/work_detail_cubit.dart';
 import 'package:totick/app/presentation/work/cubit/work_detail_state.dart';
+import 'package:totick/app/presentation/work/widget/task_tile.dart';
 
 import '../../../entity/task_entity.dart';
+import '../section/create_task/create_task_section.dart';
 
 class WorkDetailScreen extends StatefulWidget {
   final int? workId;
@@ -17,8 +20,9 @@ class WorkDetailScreen extends StatefulWidget {
   static Widget create(GetIt locator, {int? workId}) {
     return BlocProvider(
       create: (_) => WorkDetailCubit(
-        getWorksUseCase: locator(),
         id: workId,
+        getWorksUseCase: locator(),
+        updateWorkUseCase: locator(),
       )..initialize(),
       child: WorkDetailScreen(workId: workId),
     );
@@ -49,7 +53,12 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
             state.work?.tasks ?? [],
           ),
           floatingActionButton: FloatingActionButton(
-            onPressed: () {},
+            onPressed: () => _showCreateWorkDialog(
+              onCreatePressed: (title) {
+                context.read<WorkDetailCubit>().createTask(title);
+                context.pop();
+              },
+            ),
             child: const Icon(Icons.add),
           ),
         );
@@ -87,8 +96,16 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
-        _buildTask(),
-        _buildTask(isDone: true, isAlarm: true),
+        ...tasks
+            .map(
+              (e) => TaskTile(
+                task: e,
+                onCheckPressed: (task) {
+                  context.read<WorkDetailCubit>().updateTask(task);
+                },
+              ),
+            )
+            .toList(),
       ],
     );
   }
@@ -133,6 +150,17 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
         ),
       ),
       onTap: () {},
+    );
+  }
+
+  _showCreateWorkDialog({void Function(String title)? onCreatePressed}) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: CreateTaskSection(onCreatePressed: onCreatePressed),
+      ),
     );
   }
 }
