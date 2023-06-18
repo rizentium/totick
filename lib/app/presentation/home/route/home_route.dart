@@ -9,9 +9,7 @@ class HomeRoute {
     return [
       GoRoute(
         path: home,
-        builder: (context, state) => const MyHomePage(
-          title: 'Flutter Demo Home Page',
-        ),
+        builder: (context, state) => HomeScreen.create(),
       ),
     ];
   }
