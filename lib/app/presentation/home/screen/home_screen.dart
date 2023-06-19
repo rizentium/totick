@@ -112,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
           works: state.workState.works,
           onCreatePressed: _onCreatePressed,
           onWorkTilePressed: (id) {
-            context.push(WorkRoute.workDetail, extra: {'id': id});
+            context.push(WorkRoute.workDetail, extra: {'workId': id});
           },
           onWorkEditPressed: (id) {
             context.showSnackBar('Ops, this feature is not available yet');
