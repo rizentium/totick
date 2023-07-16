@@ -2,13 +2,14 @@ import 'package:equatable/equatable.dart';
 import 'package:isar/isar.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:totick/app/entity/task_entity.dart';
+import 'package:totick/core/extensions/data_types.dart';
 
 part 'work_entity.g.dart';
 
 @JsonSerializable()
 @Collection(inheritance: false)
 class WorkEntity extends Equatable {
-  final Id id;
+  final String? id;
 
   @Index(type: IndexType.value)
   final String? name;
@@ -22,7 +23,7 @@ class WorkEntity extends Equatable {
   final DateTime? deletedAt;
 
   const WorkEntity({
-    this.id = Isar.autoIncrement,
+    this.id,
     this.name,
     this.description,
     this.tasks,
@@ -44,7 +45,7 @@ class WorkEntity extends Equatable {
       ];
 
   WorkEntity copyWith({
-    Id? id,
+    String? id,
     String? name,
     String? description,
     List<TaskEntity>? tasks,
@@ -67,4 +68,6 @@ class WorkEntity extends Equatable {
       _$WorkEntityFromJson(json);
 
   Map<String, dynamic> toJson() => _$WorkEntityToJson(this);
+
+  Id get isarId => id?.fastHash ?? 0;
 }

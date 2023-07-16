@@ -6,7 +6,7 @@ class GetWorksUseCase {
 
   GetWorksUseCase(this._workRepository);
 
-  Future<List<WorkEntity>> call({int? id}) async {
+  Future<List<WorkEntity>> call({String? id}) async {
     return await _workRepository.read(id: id);
   }
 }

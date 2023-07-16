@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:totick/core/extensions/data_types.dart';
 
 import '../../entity/work_entity.dart';
 
@@ -13,14 +14,16 @@ class WorkService {
     );
   }
 
-  Future<List<WorkEntity>> read({int? id}) async {
+  Future<List<WorkEntity>> read({String? id}) async {
     if (id != null) {
       return _isar.workEntitys.filter().idEqualTo(id).findAll();
     }
     return await _isar.workEntitys.where().findAll();
   }
 
-  Future<bool> delete(int id) async {
-    return _isar.writeTxn(() async => await _isar.workEntitys.delete(id));
+  Future<bool> delete(String id) async {
+    return _isar.writeTxn(
+      () async => await _isar.workEntitys.delete(id.fastHash),
+    );
   }
 }

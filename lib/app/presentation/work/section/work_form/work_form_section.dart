@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:totick/core/extensions/build_context.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../../core/design/widget/totick_textfield.dart';
 import '../../../../entity/work_entity.dart';
@@ -92,6 +93,7 @@ class _WorkFormSectionState extends State<WorkFormSection> {
       final currentWork = widget.work ?? const WorkEntity();
       widget.onSavePressed?.call(
         currentWork.copyWith(
+          id: currentWork.id ?? const Uuid().v4(),
           name: _titleController.text,
           description: _descriptionController.text,
           createdAt: currentWork.createdAt ?? DateTime.now(),

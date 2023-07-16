@@ -4,7 +4,7 @@ import '../../../../entity/work_entity.dart';
 
 class HomeWorkSection extends StatelessWidget {
   final void Function()? onCreatePressed;
-  final void Function(int id)? onWorkTilePressed;
+  final void Function(String? id)? onWorkTilePressed;
   final void Function(WorkEntity work)? onWorkDeletePressed;
   final void Function(WorkEntity work)? onWorkEditPressed;
 
