@@ -6,9 +6,11 @@ import 'package:totick/app/presentation/work/cubit/work_detail_cubit.dart';
 import 'package:totick/app/presentation/work/cubit/work_detail_state.dart';
 import 'package:totick/app/presentation/work/widget/task_tile.dart';
 import 'package:totick/core/extensions/build_context.dart';
+import 'package:totick/core/extensions/data_types.dart';
 
 import '../../../entity/task_entity.dart';
 import '../section/create_task/create_task_section.dart';
+import '../widget/work_detail_shimmer.dart';
 
 class WorkDetailScreen extends StatefulWidget {
   final int? workId;
@@ -35,6 +37,8 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
   Widget build(BuildContext context) {
     return BlocConsumer<WorkDetailCubit, WorkDetailState>(
       builder: (context, state) {
+        if (state.isLoading) return const WorkDetailShimmer();
+
         return Scaffold(
           appBar: AppBar(
             title: Text(state.work?.name ?? ''),
@@ -89,10 +93,10 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
   ) {
     return ListView(
       children: [
-        if (description != null)
+        if (description.isNotNullOrEmpty)
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text(description),
+            child: Text(description ?? ''),
           ),
         _buildTasks(tasks),
       ],

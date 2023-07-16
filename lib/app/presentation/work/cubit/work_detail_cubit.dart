@@ -20,13 +20,19 @@ class WorkDetailCubit extends Cubit<WorkDetailState> {
         super(const WorkDetailState());
 
   Future<void> initialize() async {
+    emit(state.copyWith(isLoading: true));
+
+    // [works] is the collection of [WorkEntity] with length 1
+    // because we use [GetWorksUseCase] to get the work by id
     final works = await _getWorksUseCase(id: id);
-    emit(state.copyWith(work: works.first));
+
+    emit(state.copyWith(work: works.first, isLoading: false));
   }
 
   Future<void> refresh() async {
+    emit(state.copyWith(isLoading: true));
     final works = await _getWorksUseCase(id: id);
-    emit(state.copyWith(work: works.first));
+    emit(state.copyWith(work: works.first, isLoading: false));
   }
 
   Future<void> createTask(String name) async {
@@ -55,6 +61,9 @@ class WorkDetailCubit extends Cubit<WorkDetailState> {
 
     final work = state.work?.copyWith(
       tasks: state.work?.tasks?.map((e) {
+        // Comparing e.id and e.createdAt to make sure that we are updating
+        // the right task because Isar does'nt support updating by id for
+        // embedded object
         if (e.id == task.id && e.createdAt == task.createdAt) return updated;
         return e;
       }).toList(),
