@@ -1,7 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:totick/app/domain/usecases/work/update_work_usecase.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../domain/usecases/work/get_works_usecase.dart';
+import '../../../domain/usecases/work/update_work_usecase.dart';
 import '../../../entity/task_entity.dart';
 import 'work_detail_state.dart';
 
@@ -30,7 +31,7 @@ class WorkDetailCubit extends Cubit<WorkDetailState> {
 
   Future<void> createTask(String name) async {
     final task = TaskEntity(
-      id: state.work?.tasks?.length ?? 0 + 1,
+      id: const Uuid().v4(),
       name: name,
       createdAt: DateTime.now(),
     );
@@ -54,7 +55,7 @@ class WorkDetailCubit extends Cubit<WorkDetailState> {
 
     final work = state.work?.copyWith(
       tasks: state.work?.tasks?.map((e) {
-        if (e.id == task.id) return updated;
+        if (e.id == task.id && e.createdAt == task.createdAt) return updated;
         return e;
       }).toList(),
     );
@@ -67,5 +68,9 @@ class WorkDetailCubit extends Cubit<WorkDetailState> {
     } catch (e) {
       emit(state.copyWith(error: e.toString()));
     }
+  }
+
+  void resetError() {
+    emit(state.copyWith(error: null));
   }
 }

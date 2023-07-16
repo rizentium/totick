@@ -7,7 +7,7 @@ part 'task_entity.g.dart';
 @JsonSerializable()
 @Embedded(inheritance: false)
 class TaskEntity extends Equatable {
-  final int? id;
+  final String? id;
   final String? name;
   final String? description;
   final int? progress; // max is 100
@@ -47,7 +47,7 @@ class TaskEntity extends Equatable {
       ];
 
   TaskEntity copyWith({
-    Id? id,
+    String? id,
     String? name,
     String? description,
     int? progress,

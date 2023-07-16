@@ -33,7 +33,7 @@ class WorkDetailScreen extends StatefulWidget {
 class _WorkDetailScreenState extends State<WorkDetailScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<WorkDetailCubit, WorkDetailState>(
+    return BlocConsumer<WorkDetailCubit, WorkDetailState>(
       builder: (context, state) {
         return Scaffold(
           appBar: AppBar(
@@ -63,14 +63,22 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: () => _showCreateWorkDialog(
-              onCreatePressed: (title) {
-                context.read<WorkDetailCubit>().createTask(title);
+              onCreatePressed: (title) async {
+                await context.read<WorkDetailCubit>().createTask(title);
+                if (!mounted) return;
                 context.pop();
               },
             ),
             child: const Icon(Icons.add),
           ),
         );
+      },
+      listener: (context, state) {
+        final error = state.error;
+        if (error != null) {
+          context.showSnackBar(error);
+          context.read<WorkDetailCubit>().resetError();
+        }
       },
     );
   }
@@ -105,16 +113,16 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
             style: Theme.of(context).textTheme.titleLarge,
           ),
         ),
-        ...tasks
-            .map(
-              (e) => TaskTile(
-                task: e,
-                onCheckPressed: (task) {
-                  context.read<WorkDetailCubit>().updateTask(task);
-                },
-              ),
-            )
-            .toList(),
+        ...tasks.map(
+          (task) {
+            return TaskTile(
+              task: task,
+              onCheckPressed: (task) {
+                context.read<WorkDetailCubit>().updateTask(task);
+              },
+            );
+          },
+        ).toList(),
       ],
     );
   }
@@ -125,40 +133,6 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
         'No upcoming tasks',
         style: Theme.of(context).textTheme.titleLarge,
       ),
-    );
-  }
-
-  Widget _buildTask({bool isDone = false, bool isAlarm = false}) {
-    return ListTile(
-      leading: IconButton(
-        onPressed: () {},
-        icon: Icon(isDone ? Icons.circle : Icons.circle_outlined),
-      ),
-      title: Text(
-        'Task 1',
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          fontStyle: isDone ? FontStyle.italic : null,
-          decoration: isDone ? TextDecoration.lineThrough : null,
-        ),
-      ),
-      subtitle: Text(
-        'Due date: 2021-10-10',
-        style: TextStyle(
-          fontStyle: isDone ? FontStyle.italic : null,
-          decoration: isDone ? TextDecoration.lineThrough : null,
-        ),
-      ),
-      trailing: IconButton(
-        onPressed: () {},
-        icon: Icon(
-          isAlarm
-              ? Icons.notifications_active
-              : Icons.notifications_off_outlined,
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.75),
-        ),
-      ),
-      onTap: () {},
     );
   }
 
