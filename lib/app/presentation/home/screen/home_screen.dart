@@ -111,11 +111,20 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         return HomeWorkSection(
           works: state.workState.works,
-          onCreatePressed: _onCreatePressed,
+          onCreatePressed: () => _showWorkFormDialog(
+            title: 'Create Work',
+            successDefaultMessage: 'Success to create work',
+            failedDefaultMessage: 'Failed to create work',
+          ),
           onWorkTilePressed: (id) {
             context.push(WorkRoute.workDetail, extra: {'workId': id});
           },
-          onWorkEditPressed: _onEditPressed,
+          onWorkEditPressed: (work) => _showWorkFormDialog(
+            work: work,
+            title: 'Edit Work',
+            successDefaultMessage: 'Success to update work',
+            failedDefaultMessage: 'Failed to update work',
+          ),
           onWorkDeletePressed: (work) => _onDeleteWorkPressed(
             work,
             onDeletePressed: () async {
@@ -140,34 +149,14 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         if (state.workState.works.isEmpty) return const SizedBox();
         return FloatingActionButton(
-          onPressed: _onCreatePressed,
+          onPressed: () => _showWorkFormDialog(
+            title: 'Create Work',
+            successDefaultMessage: 'Success to create work',
+            failedDefaultMessage: 'Failed to create work',
+          ),
           tooltip: 'Create',
           child: const Icon(Icons.add),
         );
-      },
-    );
-  }
-
-  _onEditPressed(WorkEntity entity) {
-    _showWorkFormDialog(
-      title: 'Edit Work',
-      work: entity,
-      onSavePressed: (work) async {},
-    );
-  }
-
-  _onCreatePressed() {
-    _showWorkFormDialog(
-      title: 'Create Work',
-      onSavePressed: (work) async {
-        await context.read<HomeCubit>().createOrUpdateWork(work);
-        if (!mounted) return;
-        final state = context.read<HomeCubit>().state.workFormState;
-        if (state.phase == HomeWorkCreatePhase.success) {
-          context.showSnackBar('Success to create work');
-          return context.pop();
-        }
-        context.showSnackBar(state.error ?? 'Failed to create work');
       },
     );
   }
@@ -202,7 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
   _showWorkFormDialog({
     required String title,
     WorkEntity? work,
-    void Function(WorkEntity work)? onSavePressed,
+    required String successDefaultMessage,
+    required String failedDefaultMessage,
   }) {
     showModalBottomSheet(
       context: context,
@@ -212,9 +202,28 @@ class _HomeScreenState extends State<HomeScreen> {
         child: HomeWorkFormSection(
           title: title,
           work: work,
-          onSavePressed: onSavePressed,
+          onSavePressed: (work) => _onSaveWorkPressed(
+            work,
+            successDefaultMessage: successDefaultMessage,
+            failedDefaultMessage: failedDefaultMessage,
+          ),
         ),
       ),
     );
+  }
+
+  Future<void> _onSaveWorkPressed(
+    WorkEntity? work, {
+    required String successDefaultMessage,
+    required String failedDefaultMessage,
+  }) async {
+    await context.read<HomeCubit>().createOrUpdateWork(work);
+    if (!mounted) return;
+    final state = context.read<HomeCubit>().state.workFormState;
+    if (state.phase == HomeWorkCreatePhase.success) {
+      context.showSnackBar(successDefaultMessage);
+      return context.pop();
+    }
+    context.showSnackBar(state.error ?? failedDefaultMessage);
   }
 }
