@@ -10,7 +10,7 @@ import '../../../entity/task_entity.dart';
 import 'work_detail_state.dart';
 
 class WorkDetailCubit extends Cubit<WorkDetailState> {
-  final int? id;
+  final String? id;
   final GetWorksUseCase _getWorksUseCase;
   final CreateOrReplaceWorkUseCase _createOrReplaceWorkUseCase;
   final DeleteWorkUseCase _deleteWorkUseCase;

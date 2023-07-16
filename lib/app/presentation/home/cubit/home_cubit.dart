@@ -47,8 +47,9 @@ class HomeCubit extends Cubit<HomeState> {
     emit(state.copyWith(workState: state.workState.copyWith(works: works)));
   }
 
-  Future<void> deleteWork(int id) async {
+  Future<void> deleteWork(String? id) async {
     try {
+      if (id == null) throw ErrorDescription('Work ID is empty');
       await deleteWorkUseCase(id);
       refresh();
     } catch (e) {

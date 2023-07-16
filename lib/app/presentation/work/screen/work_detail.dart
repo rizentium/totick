@@ -15,14 +15,14 @@ import '../section/work_form/work_form_section.dart';
 import '../widget/work_detail_shimmer.dart';
 
 class WorkDetailScreen extends StatefulWidget {
-  final int? workId;
+  final String? workId;
 
   const WorkDetailScreen({super.key, this.workId});
 
   @override
   State<WorkDetailScreen> createState() => _WorkDetailScreenState();
 
-  static Widget create(GetIt locator, {int? workId}) {
+  static Widget create(GetIt locator, {String? workId}) {
     return BlocProvider(
       create: (_) => WorkDetailCubit(
         id: workId,
