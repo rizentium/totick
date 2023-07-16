@@ -1,29 +1,29 @@
 import 'package:equatable/equatable.dart';
 
 import '../section/work/home_work_state.dart';
-import '../section/work_create/home_work_create_state.dart';
+import '../../work/section/work_form/work_form_state.dart';
 
 class HomeState extends Equatable {
-  final HomeWorkCreateState workCreateState;
+  final WorkFormState workFormState;
   final HomeWorkState workState;
   final String? error;
 
   const HomeState({
-    this.workCreateState = const HomeWorkCreateState(),
+    this.workFormState = const WorkFormState(),
     this.workState = const HomeWorkState(),
     this.error,
   });
 
   @override
-  List<Object?> get props => [workCreateState, workState, error];
+  List<Object?> get props => [workFormState, workState, error];
 
   HomeState copyWith({
-    HomeWorkCreateState? workCreateState,
+    WorkFormState? workFormState,
     HomeWorkState? workState,
     String? error,
   }) {
     return HomeState(
-      workCreateState: workCreateState ?? this.workCreateState,
+      workFormState: workFormState ?? this.workFormState,
       workState: workState ?? this.workState,
       error: error ?? this.error,
     );

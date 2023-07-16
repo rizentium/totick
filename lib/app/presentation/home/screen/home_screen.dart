@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../config/environment.dart';
 import '../../../../core/extensions/build_context.dart';
+import '../../../../core/extensions/data_types.dart';
 import '../../../entity/work_entity.dart';
 import '../../work/route/work_route.dart';
 import '../cubit/home_cubit.dart';
@@ -13,8 +14,8 @@ import '../cubit/home_state.dart';
 import '../section/task/home_task_section.dart';
 import '../section/user/home_user_section.dart';
 import '../section/work/home_work_section.dart';
-import '../section/work_create/home_work_create_section.dart';
-import '../section/work_create/home_work_create_state.dart';
+import '../../work/section/work_form/work_form_section.dart';
+import '../../work/section/work_form/work_form_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -27,7 +28,7 @@ class HomeScreen extends StatefulWidget {
   static Widget create(GetIt locator, {String? title}) {
     return BlocProvider(
       create: (context) => HomeCubit(
-        createWorkUseCase: locator(),
+        createOrReplaceWorkUseCase: locator(),
         getWorksUseCase: locator(),
         deleteWorkUseCase: locator(),
       ),
@@ -110,25 +111,34 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         return HomeWorkSection(
           works: state.workState.works,
-          onCreatePressed: _onCreatePressed,
-          onWorkTilePressed: (id) {
-            context.push(WorkRoute.workDetail, extra: {'workId': id});
+          onCreatePressed: () => _showWorkFormDialog(
+            title: 'Create Work',
+            successDefaultMessage: 'Success to create work',
+            failedDefaultMessage: 'Failed to create work',
+          ),
+          onWorkTilePressed: (id) async {
+            await context.push(WorkRoute.workDetail, extra: {'workId': id});
+            if (!mounted) return;
+            context.read<HomeCubit>().refresh();
           },
-          onWorkEditPressed: (id) {
-            context.showSnackBar('Ops, this feature is not available yet');
-          },
+          onWorkEditPressed: (work) => _showWorkFormDialog(
+            work: work,
+            title: 'Edit Work',
+            successDefaultMessage: 'Success to update work',
+            failedDefaultMessage: 'Failed to update work',
+          ),
           onWorkDeletePressed: (work) => _onDeleteWorkPressed(
             work,
-            onDeletePressed: () {
-              context.read<HomeCubit>().deleteWork(work.id).then((value) {
-                if (state.error == null) {
-                  context.pop();
-                  return context.showSnackBar(
-                    'Success to delete work',
-                  );
-                }
-                context.showSnackBar(state.error ?? 'Failed to delete work');
-              });
+            onDeletePressed: () async {
+              await context.read<HomeCubit>().deleteWork(work.id);
+              if (!mounted) return;
+              if (state.error.isNotNullOrEmpty) {
+                return context.showSnackBar(
+                  state.error ?? 'Failed to delete work',
+                );
+              }
+              context.pop();
+              context.showSnackBar('Success to delete work');
             },
           ),
         );
@@ -141,25 +151,14 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context, state) {
         if (state.workState.works.isEmpty) return const SizedBox();
         return FloatingActionButton(
-          onPressed: _onCreatePressed,
+          onPressed: () => _showWorkFormDialog(
+            title: 'Create Work',
+            successDefaultMessage: 'Success to create work',
+            failedDefaultMessage: 'Failed to create work',
+          ),
           tooltip: 'Create',
           child: const Icon(Icons.add),
         );
-      },
-    );
-  }
-
-  _onCreatePressed() {
-    _showCreateWorkDialog(
-      onCreatePressed: (title, description) {
-        context.read<HomeCubit>().createWork(title, description).then((value) {
-          final state = context.read<HomeCubit>().state.workCreateState;
-          if (state.phase == HomeWorkCreatePhase.success) {
-            context.showSnackBar('Success to create work');
-            return context.pop();
-          }
-          context.showSnackBar(state.error ?? 'Failed to create work');
-        });
       },
     );
   }
@@ -191,16 +190,42 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _showCreateWorkDialog({
-    void Function(String title, String description)? onCreatePressed,
+  void _showWorkFormDialog({
+    required String title,
+    WorkEntity? work,
+    required String successDefaultMessage,
+    required String failedDefaultMessage,
   }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: HomeWorkCreateSection(onCreatePressed: onCreatePressed),
+        child: WorkFormSection(
+          title: title,
+          work: work,
+          onSavePressed: (work) => _onSaveWorkPressed(
+            work,
+            successDefaultMessage: successDefaultMessage,
+            failedDefaultMessage: failedDefaultMessage,
+          ),
+        ),
       ),
     );
+  }
+
+  Future<void> _onSaveWorkPressed(
+    WorkEntity? work, {
+    required String successDefaultMessage,
+    required String failedDefaultMessage,
+  }) async {
+    await context.read<HomeCubit>().createOrUpdateWork(work);
+    if (!mounted) return;
+    final state = context.read<HomeCubit>().state.workFormState;
+    if (state.phase == WorkStatePhase.success) {
+      context.showSnackBar(successDefaultMessage);
+      return context.pop();
+    }
+    context.showSnackBar(state.error ?? failedDefaultMessage);
   }
 }

@@ -22,4 +22,8 @@ class WorkRepository {
   Future<bool> delete(int id) async {
     return await _workService.delete(id);
   }
+
+  Future<int> createOrReplace(WorkEntity work) {
+    return _workService.createOrReplace(work);
+  }
 }
