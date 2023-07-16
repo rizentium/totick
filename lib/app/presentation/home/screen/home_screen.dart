@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
+import 'package:totick/core/extensions/data_types.dart';
 
 import '../../../../config/environment.dart';
 import '../../../../core/extensions/build_context.dart';
@@ -13,8 +14,8 @@ import '../cubit/home_state.dart';
 import '../section/task/home_task_section.dart';
 import '../section/user/home_user_section.dart';
 import '../section/work/home_work_section.dart';
-import '../section/work_create/home_work_create_section.dart';
-import '../section/work_create/home_work_create_state.dart';
+import '../section/work_form/home_work_form_section.dart';
+import '../section/work_form/home_work_form_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -27,7 +28,7 @@ class HomeScreen extends StatefulWidget {
   static Widget create(GetIt locator, {String? title}) {
     return BlocProvider(
       create: (context) => HomeCubit(
-        createWorkUseCase: locator(),
+        createOrReplaceWorkUseCase: locator(),
         getWorksUseCase: locator(),
         deleteWorkUseCase: locator(),
       ),
@@ -114,21 +115,19 @@ class _HomeScreenState extends State<HomeScreen> {
           onWorkTilePressed: (id) {
             context.push(WorkRoute.workDetail, extra: {'workId': id});
           },
-          onWorkEditPressed: (id) {
-            context.showSnackBar('Ops, this feature is not available yet');
-          },
+          onWorkEditPressed: _onEditPressed,
           onWorkDeletePressed: (work) => _onDeleteWorkPressed(
             work,
-            onDeletePressed: () {
-              context.read<HomeCubit>().deleteWork(work.id).then((value) {
-                if (state.error == null) {
-                  context.pop();
-                  return context.showSnackBar(
-                    'Success to delete work',
-                  );
-                }
-                context.showSnackBar(state.error ?? 'Failed to delete work');
-              });
+            onDeletePressed: () async {
+              await context.read<HomeCubit>().deleteWork(work.id);
+              if (!mounted) return;
+              if (state.error.isNotNullOrEmpty) {
+                return context.showSnackBar(
+                  state.error ?? 'Failed to delete work',
+                );
+              }
+              context.pop();
+              context.showSnackBar('Success to delete work');
             },
           ),
         );
@@ -149,17 +148,26 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  _onEditPressed(WorkEntity entity) {
+    _showWorkFormDialog(
+      title: 'Edit Work',
+      work: entity,
+      onSavePressed: (work) async {},
+    );
+  }
+
   _onCreatePressed() {
-    _showCreateWorkDialog(
-      onCreatePressed: (title, description) {
-        context.read<HomeCubit>().createWork(title, description).then((value) {
-          final state = context.read<HomeCubit>().state.workCreateState;
-          if (state.phase == HomeWorkCreatePhase.success) {
-            context.showSnackBar('Success to create work');
-            return context.pop();
-          }
-          context.showSnackBar(state.error ?? 'Failed to create work');
-        });
+    _showWorkFormDialog(
+      title: 'Create Work',
+      onSavePressed: (work) async {
+        await context.read<HomeCubit>().createOrUpdateWork(work);
+        if (!mounted) return;
+        final state = context.read<HomeCubit>().state.workFormState;
+        if (state.phase == HomeWorkCreatePhase.success) {
+          context.showSnackBar('Success to create work');
+          return context.pop();
+        }
+        context.showSnackBar(state.error ?? 'Failed to create work');
       },
     );
   }
@@ -191,15 +199,21 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _showCreateWorkDialog({
-    void Function(String title, String description)? onCreatePressed,
+  _showWorkFormDialog({
+    required String title,
+    WorkEntity? work,
+    void Function(WorkEntity work)? onSavePressed,
   }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) => SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: HomeWorkCreateSection(onCreatePressed: onCreatePressed),
+        child: HomeWorkFormSection(
+          title: title,
+          work: work,
+          onSavePressed: onSavePressed,
+        ),
       ),
     );
   }

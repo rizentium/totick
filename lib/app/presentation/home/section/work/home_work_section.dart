@@ -6,7 +6,7 @@ class HomeWorkSection extends StatelessWidget {
   final void Function()? onCreatePressed;
   final void Function(int id)? onWorkTilePressed;
   final void Function(WorkEntity work)? onWorkDeletePressed;
-  final void Function(int id)? onWorkEditPressed;
+  final void Function(WorkEntity work)? onWorkEditPressed;
 
   final List<WorkEntity> works;
 
@@ -81,7 +81,7 @@ class HomeWorkSection extends StatelessWidget {
                             child: const Text('Edit'),
                             onTap: () => Future.delayed(
                               const Duration(seconds: 0),
-                              () => onWorkEditPressed?.call(e.id),
+                              () => onWorkEditPressed?.call(e),
                             ),
                           ),
                           PopupMenuItem(

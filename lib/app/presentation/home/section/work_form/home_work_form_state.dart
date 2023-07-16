@@ -1,22 +1,28 @@
 import 'package:equatable/equatable.dart';
 
-class HomeWorkCreateState extends Equatable {
+import '../../../../entity/work_entity.dart';
+
+class HomeWorkFormState extends Equatable {
+  final WorkEntity? work;
   final String? error;
   final HomeWorkCreatePhase phase;
 
-  const HomeWorkCreateState({
+  const HomeWorkFormState({
+    this.work,
     this.error,
     this.phase = HomeWorkCreatePhase.initial,
   });
 
   @override
-  List<Object?> get props => [error, phase];
+  List<Object?> get props => [work, error, phase];
 
-  HomeWorkCreateState copyWith({
+  HomeWorkFormState copyWith({
+    WorkEntity? work,
     String? error,
     HomeWorkCreatePhase? phase,
   }) {
-    return HomeWorkCreateState(
+    return HomeWorkFormState(
+      work: work ?? this.work,
       error: error ?? this.error,
       phase: phase ?? this.phase,
     );

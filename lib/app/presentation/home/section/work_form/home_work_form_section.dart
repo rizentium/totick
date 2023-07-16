@@ -3,33 +3,52 @@ import 'package:go_router/go_router.dart';
 import 'package:totick/core/extensions/build_context.dart';
 
 import '../../../../../core/design/widget/totick_textfield.dart';
+import '../../../../entity/work_entity.dart';
 
-class HomeWorkCreateSection extends StatefulWidget {
-  final void Function(String title, String description)? onCreatePressed;
+class HomeWorkFormSection extends StatefulWidget {
+  final String title;
+  final WorkEntity? work;
+  final void Function(WorkEntity)? onSavePressed;
 
-  const HomeWorkCreateSection({super.key, this.onCreatePressed});
-
-  static final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  const HomeWorkFormSection({
+    super.key,
+    required this.title,
+    this.work,
+    this.onSavePressed,
+  });
 
   @override
-  State<HomeWorkCreateSection> createState() => _HomeWorkCreateSectionState();
+  State<HomeWorkFormSection> createState() => _HomeWorkFormSectionState();
 }
 
-class _HomeWorkCreateSectionState extends State<HomeWorkCreateSection> {
+class _HomeWorkFormSectionState extends State<HomeWorkFormSection> {
+  final _formKey = GlobalKey<FormState>();
+
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    final workName = widget.work?.name;
+    final workDescription = widget.work?.description;
+
+    if (workName != null) _titleController.text = workName;
+    if (workDescription != null) _descriptionController.text = workDescription;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Form(
-        key: HomeWorkCreateSection._formKey,
+        key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Create Work',
+              widget.title,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
@@ -69,10 +88,15 @@ class _HomeWorkCreateSectionState extends State<HomeWorkCreateSection> {
   }
 
   _onCreatePressed() {
-    if (HomeWorkCreateSection._formKey.currentState?.validate() == true) {
-      widget.onCreatePressed?.call(
-        _titleController.text,
-        _descriptionController.text,
+    if (_formKey.currentState?.validate() == true) {
+      final currentWork = widget.work ?? const WorkEntity();
+      widget.onSavePressed?.call(
+        currentWork.copyWith(
+          name: _titleController.text,
+          description: _descriptionController.text,
+          createdAt: currentWork.createdAt ?? DateTime.now(),
+          updatedAt: DateTime.now(),
+        ),
       );
     } else {
       context.showSnackBar('Ops, please check your input');

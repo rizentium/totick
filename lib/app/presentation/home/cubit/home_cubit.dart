@@ -1,18 +1,19 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../../../domain/usecases/work/create_work_usecase.dart';
+import '../../../domain/usecases/work/create_or_replace_work_usecase.dart';
 import '../../../domain/usecases/work/delete_work_usecase.dart';
 import '../../../domain/usecases/work/get_works_usecase.dart';
 import '../../../entity/work_entity.dart';
-import '../section/work_create/home_work_create_state.dart';
+import '../section/work_form/home_work_form_state.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  final CreateWorkUseCase createWorkUseCase;
+  final CreateOrReplaceWorkUseCase createOrReplaceWorkUseCase;
   final GetWorksUseCase getWorksUseCase;
   final DeleteWorkUseCase deleteWorkUseCase;
 
   HomeCubit({
-    required this.createWorkUseCase,
+    required this.createOrReplaceWorkUseCase,
     required this.getWorksUseCase,
     required this.deleteWorkUseCase,
   }) : super(const HomeState());
@@ -21,23 +22,18 @@ class HomeCubit extends Cubit<HomeState> {
     getWorks();
   }
 
-  Future<void> createWork(String title, String description) async {
+  Future<void> createOrUpdateWork(WorkEntity? work) async {
     try {
-      await createWorkUseCase(
-        WorkEntity(
-          name: title,
-          description: description,
-          createdAt: DateTime.now(),
-        ),
-      );
+      if (work == null) throw ErrorDescription('Work Entity is empty');
+      await createOrReplaceWorkUseCase.execute(work);
       emit(state.copyWith(
-        workCreateState: state.workCreateState.copyWith(
+        workFormState: state.workFormState.copyWith(
           phase: HomeWorkCreatePhase.success,
         ),
       ));
     } catch (e) {
       emit(state.copyWith(
-        workCreateState: state.workCreateState.copyWith(
+        workFormState: state.workFormState.copyWith(
           error: e.toString(),
           phase: HomeWorkCreatePhase.error,
         ),
