@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:go_router/go_router.dart';
-import 'package:totick/core/extensions/data_types.dart';
 
 import '../../../../config/environment.dart';
 import '../../../../core/extensions/build_context.dart';
+import '../../../../core/extensions/data_types.dart';
 import '../../../entity/work_entity.dart';
 import '../../work/route/work_route.dart';
 import '../cubit/home_cubit.dart';
@@ -14,8 +14,8 @@ import '../cubit/home_state.dart';
 import '../section/task/home_task_section.dart';
 import '../section/user/home_user_section.dart';
 import '../section/work/home_work_section.dart';
-import '../section/work_form/home_work_form_section.dart';
-import '../section/work_form/home_work_form_state.dart';
+import '../../work/section/work_form/work_form_section.dart';
+import '../../work/section/work_form/work_form_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.title});
@@ -116,8 +116,10 @@ class _HomeScreenState extends State<HomeScreen> {
             successDefaultMessage: 'Success to create work',
             failedDefaultMessage: 'Failed to create work',
           ),
-          onWorkTilePressed: (id) {
-            context.push(WorkRoute.workDetail, extra: {'workId': id});
+          onWorkTilePressed: (id) async {
+            await context.push(WorkRoute.workDetail, extra: {'workId': id});
+            if (!mounted) return;
+            context.read<HomeCubit>().refresh();
           },
           onWorkEditPressed: (work) => _showWorkFormDialog(
             work: work,
@@ -188,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  _showWorkFormDialog({
+  void _showWorkFormDialog({
     required String title,
     WorkEntity? work,
     required String successDefaultMessage,
@@ -199,7 +201,7 @@ class _HomeScreenState extends State<HomeScreen> {
       isScrollControlled: true,
       builder: (context) => SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: HomeWorkFormSection(
+        child: WorkFormSection(
           title: title,
           work: work,
           onSavePressed: (work) => _onSaveWorkPressed(
@@ -220,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
     await context.read<HomeCubit>().createOrUpdateWork(work);
     if (!mounted) return;
     final state = context.read<HomeCubit>().state.workFormState;
-    if (state.phase == HomeWorkCreatePhase.success) {
+    if (state.phase == WorkStatePhase.success) {
       context.showSnackBar(successDefaultMessage);
       return context.pop();
     }

@@ -5,12 +5,12 @@ import 'package:totick/core/extensions/build_context.dart';
 import '../../../../../core/design/widget/totick_textfield.dart';
 import '../../../../entity/work_entity.dart';
 
-class HomeWorkFormSection extends StatefulWidget {
+class WorkFormSection extends StatefulWidget {
   final String title;
   final WorkEntity? work;
   final void Function(WorkEntity)? onSavePressed;
 
-  const HomeWorkFormSection({
+  const WorkFormSection({
     super.key,
     required this.title,
     this.work,
@@ -18,10 +18,10 @@ class HomeWorkFormSection extends StatefulWidget {
   });
 
   @override
-  State<HomeWorkFormSection> createState() => _HomeWorkFormSectionState();
+  State<WorkFormSection> createState() => _WorkFormSectionState();
 }
 
-class _HomeWorkFormSectionState extends State<HomeWorkFormSection> {
+class _WorkFormSectionState extends State<WorkFormSection> {
   final _formKey = GlobalKey<FormState>();
 
   final _titleController = TextEditingController();

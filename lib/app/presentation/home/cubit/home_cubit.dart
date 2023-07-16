@@ -4,7 +4,7 @@ import '../../../domain/usecases/work/create_or_replace_work_usecase.dart';
 import '../../../domain/usecases/work/delete_work_usecase.dart';
 import '../../../domain/usecases/work/get_works_usecase.dart';
 import '../../../entity/work_entity.dart';
-import '../section/work_form/home_work_form_state.dart';
+import '../../work/section/work_form/work_form_state.dart';
 import 'home_state.dart';
 
 class HomeCubit extends Cubit<HomeState> {
@@ -28,14 +28,14 @@ class HomeCubit extends Cubit<HomeState> {
       await createOrReplaceWorkUseCase.execute(work);
       emit(state.copyWith(
         workFormState: state.workFormState.copyWith(
-          phase: HomeWorkCreatePhase.success,
+          phase: WorkStatePhase.success,
         ),
       ));
     } catch (e) {
       emit(state.copyWith(
         workFormState: state.workFormState.copyWith(
           error: e.toString(),
-          phase: HomeWorkCreatePhase.error,
+          phase: WorkStatePhase.error,
         ),
       ));
     }

@@ -9,7 +9,9 @@ import 'package:totick/core/extensions/build_context.dart';
 import 'package:totick/core/extensions/data_types.dart';
 
 import '../../../entity/task_entity.dart';
+import '../../../entity/work_entity.dart';
 import '../section/create_task/create_task_section.dart';
+import '../section/work_form/work_form_section.dart';
 import '../widget/work_detail_shimmer.dart';
 
 class WorkDetailScreen extends StatefulWidget {
@@ -25,7 +27,8 @@ class WorkDetailScreen extends StatefulWidget {
       create: (_) => WorkDetailCubit(
         id: workId,
         getWorksUseCase: locator(),
-        updateWorkUseCase: locator(),
+        createOrReplaceWorkUseCase: locator(),
+        deleteWorkUseCase: locator(),
       )..initialize(),
       child: WorkDetailScreen(workId: workId),
     );
@@ -45,18 +48,32 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
             actions: [
               IconButton(
                 onPressed: () {
-                  context.showSnackBar(
-                    'Ops, edit feature is not implemented yet',
+                  _showWorkFormDialog(
+                    work: state.work,
+                    title: 'Edit Work',
+                    successDefaultMessage: 'Success to update work',
+                    failedDefaultMessage: 'Failed to update work',
                   );
                 },
                 icon: const Icon(Icons.edit),
               ),
               IconButton(
-                onPressed: () {
-                  context.showSnackBar(
-                    'Ops, delete feature is not implemented yet',
-                  );
-                },
+                onPressed: () => _onDeleteWorkPressed(
+                  state.work,
+                  onDeletePressed: () async {
+                    await context.read<WorkDetailCubit>().deleteWork();
+                    if (!mounted) return;
+                    if (state.error.isNotNullOrEmpty) {
+                      return context.showSnackBar(
+                        state.error ?? 'Failed to delete work',
+                      );
+                    }
+                    context.showSnackBar('Success to delete work');
+                    context
+                      ..pop()
+                      ..pop();
+                  },
+                ),
                 icon: const Icon(Icons.delete),
               ),
             ],
@@ -149,5 +166,72 @@ class _WorkDetailScreenState extends State<WorkDetailScreen> {
         child: CreateTaskSection(onCreatePressed: onCreatePressed),
       ),
     );
+  }
+
+  Future<void> _onDeleteWorkPressed(
+    WorkEntity? work, {
+    void Function()? onDeletePressed,
+  }) async {
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete ${work?.name}'),
+          content: const Text(
+            'Are you sure to delete this work?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: onDeletePressed,
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showWorkFormDialog({
+    required String title,
+    WorkEntity? work,
+    required String successDefaultMessage,
+    required String failedDefaultMessage,
+  }) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: WorkFormSection(
+          title: title,
+          work: work,
+          onSavePressed: (work) => _onSaveWorkPressed(
+            work,
+            successDefaultMessage: successDefaultMessage,
+            failedDefaultMessage: failedDefaultMessage,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onSaveWorkPressed(
+    WorkEntity work, {
+    required String successDefaultMessage,
+    required String failedDefaultMessage,
+  }) async {
+    await context.read<WorkDetailCubit>().updateWork(work);
+    if (!mounted) return;
+    final state = context.read<WorkDetailCubit>().state;
+    if (state.error.isNullOrEmpty) {
+      context.showSnackBar(successDefaultMessage);
+      context.pop();
+    } else {
+      context.showSnackBar(state.error ?? failedDefaultMessage);
+    }
   }
 }

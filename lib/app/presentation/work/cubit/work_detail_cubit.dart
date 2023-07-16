@@ -1,22 +1,28 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:totick/app/domain/usecases/work/create_or_replace_work_usecase.dart';
+import 'package:totick/app/domain/usecases/work/delete_work_usecase.dart';
+import 'package:totick/app/entity/work_entity.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../../domain/usecases/work/get_works_usecase.dart';
-import '../../../domain/usecases/work/update_work_usecase.dart';
 import '../../../entity/task_entity.dart';
 import 'work_detail_state.dart';
 
 class WorkDetailCubit extends Cubit<WorkDetailState> {
   final int? id;
   final GetWorksUseCase _getWorksUseCase;
-  final UpdateWorkUseCase _updateWorkUseCase;
+  final CreateOrReplaceWorkUseCase _createOrReplaceWorkUseCase;
+  final DeleteWorkUseCase _deleteWorkUseCase;
 
   WorkDetailCubit({
     this.id,
     required GetWorksUseCase getWorksUseCase,
-    required UpdateWorkUseCase updateWorkUseCase,
+    required CreateOrReplaceWorkUseCase createOrReplaceWorkUseCase,
+    required DeleteWorkUseCase deleteWorkUseCase,
   })  : _getWorksUseCase = getWorksUseCase,
-        _updateWorkUseCase = updateWorkUseCase,
+        _createOrReplaceWorkUseCase = createOrReplaceWorkUseCase,
+        _deleteWorkUseCase = deleteWorkUseCase,
         super(const WorkDetailState());
 
   Future<void> initialize() async {
@@ -46,7 +52,7 @@ class WorkDetailCubit extends Cubit<WorkDetailState> {
 
     try {
       if (work != null) {
-        await _updateWorkUseCase(work);
+        await _createOrReplaceWorkUseCase.execute(work);
       }
 
       emit(state.copyWith(work: work));
@@ -71,7 +77,7 @@ class WorkDetailCubit extends Cubit<WorkDetailState> {
 
     try {
       if (work != null) {
-        _updateWorkUseCase(work);
+        _createOrReplaceWorkUseCase.execute(work);
       }
       emit(state.copyWith(work: work));
     } catch (e) {
@@ -81,5 +87,26 @@ class WorkDetailCubit extends Cubit<WorkDetailState> {
 
   void resetError() {
     emit(state.copyWith(error: null));
+  }
+
+  Future<void> deleteWork() async {
+    final workId = state.work?.id;
+    if (workId == null) return;
+    try {
+      await _deleteWorkUseCase(workId);
+      emit(state.copyWith(error: null));
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
+    }
+  }
+
+  Future<void> updateWork(WorkEntity? work) async {
+    try {
+      if (work == null) throw ErrorDescription('Work Entity is empty');
+      await _createOrReplaceWorkUseCase.execute(work);
+      emit(state.copyWith(work: work));
+    } catch (e) {
+      emit(state.copyWith(error: e.toString()));
+    }
   }
 }
